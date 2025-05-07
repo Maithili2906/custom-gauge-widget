@@ -1,0 +1,14 @@
+{
+  "id": "custom.chart.widget",
+  "name": "Custom Chart Widget",
+  "description": "Displays custom chart using Chart.js",
+  "script": "widget.js",
+  "webcomponents": true,
+  "version": "1.0.0",
+  "properties": {
+    "chartTitle": {
+      "type": "string",
+      "default": "My Custom Chart"
+    }
+  }
+}
