@@ -1,43 +1,47 @@
 (function () {
-  let chart;
+  let chart, data;
 
   const template = document.createElement("template");
-  template.innerHTML = `<canvas id="customChart" width="400" height="300"></canvas>`;
+  template.innerHTML = `<div id="gauge_div" style="width: 400px; height: 120px;"></div>`;
 
-  class CustomChart extends HTMLElement {
+  class GaugeWidget extends HTMLElement {
     constructor() {
       super();
       this._shadowRoot = this.attachShadow({ mode: "open" });
       this._shadowRoot.appendChild(template.content.cloneNode(true));
-      this.canvas = this._shadowRoot.querySelector("#customChart");
+      this._gaugeDiv = this._shadowRoot.querySelector("#gauge_div");
+
+      google.charts.load("current", {
+        packages: ["gauge"]
+      });
     }
 
     onCustomWidgetAfterUpdate(changedProps) {
-      const ctx = this.canvas.getContext("2d");
-      if (chart) chart.destroy(); // Clean up previous chart
+      const value = this.value || 0;
+      const title = this.title || "Gauge";
 
-      chart = new Chart(ctx, {
-        type: "bar",
-        data: {
-          labels: ["Port A", "Port B", "Port C"],
-          datasets: [{
-            label: "Cost",
-            data: [100000, 75000, 95000],
-            backgroundColor: ["#3e95cd", "#8e5ea2", "#3cba9f"]
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            title: {
-              display: true,
-              text: this.chartTitle || "Cost by Port"
-            }
-          }
-        }
+      google.charts.setOnLoadCallback(() => {
+        data = google.visualization.arrayToDataTable([
+          ["Label", "Value"],
+          [title, value]
+        ]);
+
+        const options = {
+          width: 400,
+          height: 120,
+          redFrom: 90,
+          redTo: 100,
+          yellowFrom: 70,
+          yellowTo: 90,
+          minorTicks: 5,
+          max: 100
+        };
+
+        chart = new google.visualization.Gauge(this._gaugeDiv);
+        chart.draw(data, options);
       });
     }
   }
 
-  customElements.define("custom-chart-widget", CustomChart);
+  customElements.define("custom-gauge-widget", GaugeWidget);
 })();
